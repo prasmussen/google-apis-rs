@@ -731,6 +731,10 @@ where
                             json::from_str(&res_body_string).ok(),
                         ) {
                             sleep(d).await;
+
+                            // Reset start offset to the beginning of the chunk we just tried to upload
+                            start = std::cmp::max(start - request_size, 0);
+
                             continue;
                         }
                     }
