@@ -719,7 +719,13 @@ where
                     let (res_parts, res_body) = res.into_parts();
                     let res_body = match hyper::body::to_bytes(res_body).await {
                         Ok(res_body) => res_body.into_iter().collect(),
-                        Err(err) => return Some(Err(err)),
+                        Err(err) => {
+                            println!("Error reading response body: {:?}", err);
+
+                            // Reset start offset to the beginning of the chunk we just tried to upload
+                            start = std::cmp::max(start - request_size, 0);
+                            continue;
+                        }
                     };
                     let res_body_string: String = String::from_utf8(res_body).unwrap();
                     let reconstructed_result =
